@@ -31,12 +31,9 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-        console.log("Login request received:", req.body); // Log incoming request
-
         const { email, password } = req.body;
 
         if (!email || !password) {
-            console.warn("Missing email or password"); // Warn about missing fields
             return res.status(400).json({
                 message: "Email and password are required",
                 success: false
@@ -44,11 +41,9 @@ const login = async (req, res) => {
         }
 
         const user = await UserModel.findOne({ email });
-        console.log("User lookup result:", user); // Log user lookup result
 
         const errorMsg = "Auth failed: email or password is wrong";
         if (!user) {
-            console.warn("User not found for email:", email); // Warn if user not found
             return res.status(403).json({
                 message: errorMsg,
                 success: false
@@ -56,10 +51,8 @@ const login = async (req, res) => {
         }
 
         const isPassEqual = await bcrypt.compare(password, user.password);
-        console.log("Password comparison result:", isPassEqual); // Log password check result
 
         if (!isPassEqual) {
-            console.warn("Incorrect password for email:", email); // Warn about incorrect password
             return res.status(403).json({
                 message: errorMsg,
                 success: false
@@ -67,7 +60,6 @@ const login = async (req, res) => {
         }
 
         if (!process.env.JWT_SECRET) {
-            console.error("JWT_SECRET is not defined in environment variables"); // Log missing JWT secret
             throw new Error("Missing JWT_SECRET in environment");
         }
 
@@ -76,7 +68,6 @@ const login = async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: "24h" }
         );
-        console.log("JWT token generated successfully"); // Log JWT generation
 
         res.status(200).json({
             message: "Login Success",
@@ -86,13 +77,13 @@ const login = async (req, res) => {
             name: user.name
         });
     } catch (err) {
-        console.error("Internal server error:", err); // Log the error
         res.status(500).json({
             message: "Internal server error",
             success: false
         });
     }
 };
+
 
 
 
