@@ -30,6 +30,7 @@ const signup = async (req, res) => {
 }
 
 const login = async (req, res) => {
+    res.send("Hello")
     try {
         console.log("Login request received:", req.body); // Log incoming request
 
