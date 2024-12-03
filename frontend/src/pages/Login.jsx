@@ -43,12 +43,16 @@ const Login = () => {
         try {
             const url = "https://mern-app-api-beta.vercel.app/auth/login";
             const response = await fetch(url, {
-                method: "POST",
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json"
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email, password }),
             });
+    
+            if (!response.ok) {
+                throw new Error('Failed to fetch, server error');
+            }
     
             const result = await response.json();
             const { success, message, jwtToken, name, error } = result;
