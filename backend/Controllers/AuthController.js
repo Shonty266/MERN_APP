@@ -31,14 +31,11 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-        console.log("Incoming login request:", req.body); // Debug: Log the request body
-
         // Destructure email and password from the request body
         const { email, password } = req.body;
 
         // Validate input
         if (!email || !password) {
-            console.warn("Missing email or password"); // Debug: Warn about missing fields
             return res.status(400).json({
                 message: "Email and password are required",
                 success: false
@@ -47,49 +44,39 @@ const login = async (req, res) => {
 
         // Find user by email
         const user = await UserModel.findOne({ email });
-        console.log("User lookup result:", user); // Debug: Log the result of the user lookup
 
-        // Error message for authentication failures
-        const errorMsg = "Authentication failed: email or password is wrong";
-
-        // If user not found
+        // If user not found or password incorrect, return same error message
         if (!user) {
-            console.warn("User not found for email:", email); // Debug: Warn about user not found
             return res.status(403).json({
-                message: errorMsg,
+                message: "Authentication failed: email or password is wrong",
                 success: false
             });
         }
 
         // Compare password with hashed password
         const isPassEqual = await bcrypt.compare(password, user.password);
-        console.log("Password comparison result:", isPassEqual); // Debug: Log the password comparison result
 
-        // If password is incorrect
         if (!isPassEqual) {
-            console.warn("Incorrect password for email:", email); // Debug: Warn about incorrect password
             return res.status(403).json({
-                message: errorMsg,
+                message: "Authentication failed: email or password is wrong", 
                 success: false
             });
-        }
-
-        // Check for JWT_SECRET
-        if (!process.env.JWT_SECRET) {
-            console.error("JWT_SECRET is missing in environment variables"); // Debug: Log missing secret
-            throw new Error("JWT_SECRET is not defined");
         }
 
         // Generate JWT token
         const jwtToken = jwt.sign(
             { email: user.email, _id: user._id },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || "fallback-secret-key", // Add fallback secret
             { expiresIn: "24h" }
         );
-        console.log("JWT token generated successfully"); // Debug: Log JWT generation success
+
+        // Set CORS headers
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Methods', 'POST');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
         // Respond with success
-        res.status(200).json({
+        return res.status(200).json({
             message: "Login Success",
             success: true,
             jwtToken,
@@ -98,14 +85,14 @@ const login = async (req, res) => {
         });
 
     } catch (err) {
-        console.error("Internal server error:", err); // Debug: Log the error stack
-        res.status(500).json({
+        console.error("Login error:", err);
+        return res.status(500).json({
             message: "Internal server error",
-            success: false
+            success: false,
+            error: err.message // Include error message for debugging
         });
     }
 };
-
 
 
 
