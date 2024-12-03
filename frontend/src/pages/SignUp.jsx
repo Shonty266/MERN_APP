@@ -75,7 +75,7 @@ const SignUp = () => {
             if (success) {
                 handleSuccess("Signup successful, redirecting to login page")
                 setTimeout(() => {
-                    navigate('/login')
+                    navigate('/admin/login')
                 }, 4000)
             } else if (error) {
                 const details = error?.details[0].message
