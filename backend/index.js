@@ -15,7 +15,16 @@ app.get('/ping', (req, res) => {
 })
 
 app.use(bodyParser.json()) 
-app.use(cors())
+
+
+const corsOptions = {
+    origin: ['https://mern-app-kappa-tan.vercel.app'], 
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+    allowedHeaders: ['Content-Type', 'Authorization'], 
+};
+
+app.use(cors(corsOptions));
+
 
 app.use('/auth', AuthRouter)
 app.use('/admin', EmployeesRouter)
