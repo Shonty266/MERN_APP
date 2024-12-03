@@ -21,6 +21,7 @@ const corsOptions = {
     origin: ['https://mern-app-kappa-tan.vercel.app'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE'], 
     allowedHeaders: ['Content-Type', 'Authorization'], 
+    credentials: true,
 };
 
 app.use(cors(corsOptions));
