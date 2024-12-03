@@ -62,7 +62,7 @@ const SignUp = () => {
         if (hasError) return
 
         try {
-            const url = `https://mern-app-api-beta.vercel.app/auth/signup`
+            const url = `https://mern-app-azwp.vercel.app/auth/signup`
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
