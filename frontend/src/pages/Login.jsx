@@ -33,39 +33,45 @@ const Login = () => {
     }
 
     const handleLogin = async (e) => {
-        e.preventDefault()
-        const { email, password } = loginInfo
+        e.preventDefault();
+        const { email, password } = loginInfo;
+    
         if (!email || !password) {
-            return handleError('Email and password are required')
+            return handleError("Email and password are required");
         }
+    
         try {
-            const url = `https://mern-app-api-beta.vercel.app/auth/login`
+            const url = "https://mern-app-api-beta.vercel.app/auth/login";
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 },
-                body: JSON.stringify(loginInfo)
-            })
-            const result = await response.json()
-            const { success, message, jwtToken, name, error } = result
+                body: JSON.stringify({ email, password })
+            });
+    
+            const result = await response.json();
+            const { success, message, jwtToken, name, error } = result;
+    
             if (success) {
-                handleSuccess("Login successful, redirecting to dashboard")
-                localStorage.setItem('token', jwtToken)
-                localStorage.setItem('loggedInUser', name)
+                handleSuccess("Login successful, redirecting to dashboard");
+                localStorage.setItem("token", jwtToken);
+                localStorage.setItem("loggedInUser", name);
                 setTimeout(() => {
-                    navigate('/admin/dashboard')
-                }, 4000)
+                    navigate("/admin/dashboard");
+                }, 4000);
             } else if (error) {
-                const details = error?.details[0].message
-                handleError(details)
-            } else if (!success) {
-                handleError(message)
+                const details = error?.details?.[0]?.message || "An error occurred";
+                handleError(details);
+            } else {
+                handleError(message || "Login failed, please try again");
             }
         } catch (err) {
-            handleError(err.message)
+            console.error("Login error:", err);
+            handleError("Something went wrong. Please try again.");
         }
-    }
+    };
+    
 
     const togglePassword = () => {
         setShowPassword(prev => !prev)
