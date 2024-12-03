@@ -11,6 +11,7 @@ const SignUp = () => {
         password: ''
     })
     const [showPassword, setShowPassword] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     const navigate = useNavigate()
 
@@ -61,8 +62,9 @@ const SignUp = () => {
         
         if (hasError) return
 
+        setIsLoading(true)
         try {
-            const url = `https://mern-app-azwp.vercel.app/auth/signup`
+            const url = `http://localhost:8080/auth/signup`
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
@@ -75,7 +77,7 @@ const SignUp = () => {
             if (success) {
                 handleSuccess("Signup successful, redirecting to login page")
                 setTimeout(() => {
-                    navigate('/admin/login')
+                    navigate('/login')
                 }, 4000)
             } else if (error) {
                 const details = error?.details[0].message
@@ -85,6 +87,8 @@ const SignUp = () => {
             }
         } catch (err) {
             handleError(err.message)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -163,9 +167,16 @@ const SignUp = () => {
                         <div>
                             <button
                                 type="submit"
-                                className="w-full p-2 rounded-md bg-[#2563eb] text-white mt-6"
+                                className="w-full p-2 rounded-md bg-[#2563eb] text-white mt-6 relative"
+                                disabled={isLoading}
                             >
-                                Sign Up
+                                {isLoading ? (
+                                    <div className="flex items-center justify-center">
+                                        <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    </div>
+                                ) : (
+                                    'Sign Up'
+                                )}
                             </button>
                         </div>
                     </form>
