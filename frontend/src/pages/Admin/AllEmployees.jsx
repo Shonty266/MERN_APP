@@ -58,7 +58,7 @@ const AllEmployees = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch('http://localhost:8080/admin/getallemployees');
+        const response = await fetch('https://mern-app-azwp.vercel.app/admin/getallemployees');
         const data = await response.json();
         if (data.success) {
           setEmployees(data.employees);
