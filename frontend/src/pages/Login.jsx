@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Toast from './toastNotification/Toast'
 import loginImg from './assets/login-img.svg'
 
@@ -14,6 +14,16 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false)
 
     const navigate = useNavigate()
+    const location = useLocation()
+
+    useEffect(() => {
+        if (location.state?.message) {
+            handleSuccess(location.state.message)
+        }
+        if (location.state?.toastMessage) {
+            handleSuccess(location.state.toastMessage)
+        }
+    }, [location])
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -26,11 +36,17 @@ const Login = () => {
     const handleSuccess = (message) => {
         setToastMessage(message)
         setShowToast(true)
+        setTimeout(() => {
+            setShowToast(false)
+        }, 3000)
     }
 
     const handleError = (message) => {
         setToastMessage(message)
         setShowToast(true)
+        setTimeout(() => {
+            setShowToast(false)
+        }, 3000)
     }
 
     const handleLogin = async (e) => {
@@ -41,7 +57,7 @@ const Login = () => {
         }
         setIsLoading(true)
         try {
-            const url = `https://mern-app-azwp.vercel.app/auth/login`
+            const url = `https://mern-app-azwp.vercel.app//auth/login`
             const response = await fetch(url, {
                 method: "POST",
                 headers: {

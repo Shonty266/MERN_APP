@@ -64,7 +64,7 @@ const SignUp = () => {
 
         setIsLoading(true)
         try {
-            const url = `http://localhost:8080/auth/signup`
+            const url = `https://mern-app-azwp.vercel.app/auth/signup`
             const response = await fetch(url, {
                 method: "POST",
                 headers: {

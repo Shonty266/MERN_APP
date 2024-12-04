@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
+import Topbar from '../../components/Topbar';
+import Toast from '../toastNotification/Toast';
 
 function AdminDashboard() {
     const [loggedInUser, setLoggedInUser] = useState('');
+    const [stats, setStats] = useState({
+        totalEmployees: 156,
+        activeProjects: 12,
+        monthlyRevenue: 125000,
+        pendingTasks: 8
+    });
+    const [toastMessage, setToastMessage] = useState('');
+    const [showToast, setShowToast] = useState(false);
     const navigate = useNavigate();
     
     useEffect(() => {
@@ -14,26 +24,15 @@ function AdminDashboard() {
         setLoggedInUser(user);
     }, [navigate])
 
-    const handleLogout = () => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('loggedInUser')
-        navigate('/admin/login')
-    }
-
     return (
-        <div className='flex'>
-            <div className='w-1/6'>
-            <Sidebar />
+        <div className='flex min-h-screen bg-gray-100'>
+            <div >
+                <Sidebar />
             </div>
-            <div className="flex-1 p-8">
-                <h1 className="text-2xl font-bold">Welcome {loggedInUser}</h1>
-                <button onClick={(handleLogout)} className='px-8 py-2 bg-red-500 text-white'>
-                    Logout
-
-                </button>
-                
-                {/* Add your dashboard content here */}
+            <div className='w-full'>
+                <Topbar />
             </div>
+            <Toast message={toastMessage} visible={showToast} />
         </div>
     )
 }

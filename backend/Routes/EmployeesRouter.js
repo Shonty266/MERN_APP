@@ -1,10 +1,17 @@
 const router = require('express').Router()
-const ViewEmployees = require('../Controllers/EmployeeController')
+const { addemployee , getallemployees , deleteemployee , editemployee } = require('../Controllers/EmployeeController')
 const ensureAuthenticated = require('../Middlewares/Auth')
 
 
 
-router.get('/viewemployees' , ensureAuthenticated, ViewEmployees)
+router.post('/addemployee' , addemployee)
+
+router.get('/getallemployees' , getallemployees)
+
+router.delete('/deleteemployee/:id' , deleteemployee)
+
+router.put('/editemployee/:id' , editemployee)
+
 
 
 module.exports = router;

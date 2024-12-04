@@ -22,7 +22,7 @@ const Toast = ({ message, visible }) => {
 
   return (
     <div
-      className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 w-fit bg-[#1a1a1a] text-white px-6 py-3 rounded-md shadow-lg transition-all duration-500 ease-in-out ${
+      className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 md:w-fit w-[90%] bg-[#1a1a1a] text-white px-6 py-3 rounded-md shadow-lg transition-all duration-500 ease-in-out text-center ${
         isVisible 
           ? 'translate-y-0 opacity-100' 
           : 'translate-y-[200%] opacity-0'

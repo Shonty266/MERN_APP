@@ -11,10 +11,33 @@ const EmployeeSchema = new Schema({
         required: true,
         unique: true
     },
-    password: {
+    contact: {
+        type: Number,
+        required: true
+    },
+    notes: {
         type: String,
-        required: true,
-    }
+        default: ''
+    },
+    documents: [{
+        id: {
+            type: Schema.Types.ObjectId,
+            default: () => new mongoose.Types.ObjectId()
+        },
+        employeeId: {
+            type: Schema.Types.ObjectId,
+            ref: 'employees',
+            required: true
+        },
+        title: String,
+        fileName: String,
+        originalName: String,
+        mimeType: String,
+        uploadDate: {
+            type: Date,
+            default: Date.now
+        }
+    }]
 });
 
 const EmployeeModel = mongoose.model('employees', EmployeeSchema);
