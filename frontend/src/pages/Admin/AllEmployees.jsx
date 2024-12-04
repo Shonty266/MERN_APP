@@ -58,7 +58,7 @@ const AllEmployees = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch('https://mern-app-azwp.vercel.app/admin/getallemployees');
+        const response = await fetch('http://localhost:8080/admin/getallemployees');
         const data = await response.json();
         if (data.success) {
           setEmployees(data.employees);
@@ -108,7 +108,7 @@ const AllEmployees = () => {
       </div>
       <div className='w-full'>
         <Topbar />
-        <div className='p-4 lg:p-8 w-full lg:w-[calc(100vw-16rem)] min-h-[calc(100vh-5rem)] right-0 bottom-0 bg-gray-100 absolute'>
+        <div className='p-4 lg:p-8 w-full lg:w-[calc(100vw-16rem)] min-h-[calc(100vh-5rem)] mt-20 lg:ml-64 right-0 bottom-0 bg-gray-100'>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between flex-wrap">
               <div>
