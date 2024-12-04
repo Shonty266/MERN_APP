@@ -111,7 +111,7 @@ const EditEmployee = ({ onClose, showToast, employee }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]" onClick={(e) => e.stopPropagation()}>
       <div className="bg-white rounded-lg shadow-xl px-8 py-6 w-[500px] max-w-[90vw]">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Edit Employee</h2>
@@ -144,7 +144,7 @@ const EditEmployee = ({ onClose, showToast, employee }) => {
               value={formData.name}
               onChange={handleChange}
               placeholder="Enter employee name"
-              className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none py-2 px-3"
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
             />
           </div>
 
@@ -159,7 +159,7 @@ const EditEmployee = ({ onClose, showToast, employee }) => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter employee email"
-              className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none py-2 px-3"
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
             />
           </div>
 
@@ -174,7 +174,7 @@ const EditEmployee = ({ onClose, showToast, employee }) => {
               value={formData.contact}
               onChange={handleChange}
               placeholder="Enter 10-digit phone number"
-              className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none py-2 px-3"
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
             />
           </div>
 
@@ -190,7 +190,7 @@ const EditEmployee = ({ onClose, showToast, employee }) => {
               placeholder="Add any additional notes"
               rows="3"
               maxLength={100}
-              className="mt-1 block w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none py-2 px-3"
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
             />
             <div className="text-sm text-gray-500 mt-1">
               {formData.notes ? formData.notes.length : 0}/100 characters

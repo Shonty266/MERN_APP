@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import Toast from '../../pages/toastNotification/Toast';
 
-const AddEmployee = ({ onClose, showToast }) => {
+const AddDocument = ({ onClose, showToast }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    contact: '',
+    title: '',
+    description: '',
+    file: null,
     notes: ''
   });
 
@@ -13,15 +13,22 @@ const AddEmployee = ({ onClose, showToast }) => {
   const [localToastMessage, setLocalToastMessage] = useState('');
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, files } = e.target;
     if (name === 'notes' && value.length > 100) {
       displayLocalToast('Note cannot exceed 100 characters');
       return;
     }
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    if (name === 'file') {
+      setFormData((prev) => ({
+        ...prev,
+        file: files[0]
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const displayLocalToast = (message) => {
@@ -33,35 +40,25 @@ const AddEmployee = ({ onClose, showToast }) => {
   };
 
   const validateForm = () => {
-    // Name validation
-    if (!formData.name) {
-      displayLocalToast('Name is required');
+    // Title validation
+    if (!formData.title) {
+      displayLocalToast('Title is required');
       return false;
     }
-    if (formData.name.length < 3) {
-      displayLocalToast('Name must be at least 3 characters long');
-      return false;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email) {
-      displayLocalToast('Email is required');
-      return false;
-    }
-    if (!emailRegex.test(formData.email)) {
-      displayLocalToast('Please enter a valid email address');
+    if (formData.title.length < 3) {
+      displayLocalToast('Title must be at least 3 characters long');
       return false;
     }
 
-    // Contact validation
-    const contactRegex = /^\d{10}$/;
-    if (!formData.contact) {
-      displayLocalToast('Contact number is required');
+    // Description validation
+    if (!formData.description) {
+      displayLocalToast('Description is required');
       return false;
     }
-    if (!contactRegex.test(formData.contact)) {
-      displayLocalToast('Contact number must be 10 digits');
+
+    // File validation
+    if (!formData.file) {
+      displayLocalToast('Please select a file to upload');
       return false;
     }
 
@@ -81,32 +78,32 @@ const AddEmployee = ({ onClose, showToast }) => {
         displayLocalToast('Authentication error. Please login again.');
         return;
       }
+
+      const formDataToSend = new FormData();
+      formDataToSend.append('title', formData.title);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('file', formData.file);
+      formDataToSend.append('notes', formData.notes);
   
-      const response = await fetch('https://mern-app-azwp.vercel.app/admin/addemployee', {
+      const response = await fetch('https://mern-app-azwp.vercel.app/admin/adddocument', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          contact: String(formData.contact),
-          notes: formData.notes
-        })
+        body: formDataToSend
       });
   
       const data = await response.json();
   
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to add employee');
+        throw new Error(data.message || 'Failed to add document');
       }
   
       onClose();
-      showToast('Employee added successfully', 'success');
+      showToast('Document added successfully', 'success');
     } catch (error) {
-      console.error('Error adding employee:', error);
-      displayLocalToast(error.message || 'Failed to add employee. Please try again.');
+      console.error('Error adding document:', error);
+      displayLocalToast(error.message || 'Failed to add document. Please try again.');
     }
   };
 
@@ -114,7 +111,7 @@ const AddEmployee = ({ onClose, showToast }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl px-4 sm:px-8 py-4 sm:py-6 w-full sm:w-[500px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Add New Employee</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Add New Document</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -134,47 +131,45 @@ const AddEmployee = ({ onClose, showToast }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Name
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+              Title
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
-              value={formData.name}
+              id="title"
+              name="title"
+              value={formData.title}
               onChange={handleChange}
-              placeholder="Enter employee name"
+              placeholder="Enter document title"
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+              Description
             </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
               onChange={handleChange}
-              placeholder="Enter employee email"
+              placeholder="Enter document description"
+              rows="3"
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base"
             />
           </div>
 
           <div>
-            <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">
-              Contact Number
+            <label htmlFor="file" className="block text-sm font-medium text-gray-700 mb-1">
+              Upload File
             </label>
             <input
-              type="tel"
-              id="contact"
-              name="contact"
-              value={formData.contact}
+              type="file"
+              id="file"
+              name="file"
               onChange={handleChange}
-              placeholder="Enter 10-digit phone number"
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base"
+              className="mt-1 block w-full text-sm sm:text-base"
             />
           </div>
 
@@ -209,7 +204,7 @@ const AddEmployee = ({ onClose, showToast }) => {
               type="submit"
               className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
             >
-              Add Employee
+              Add Document
             </button>
           </div>
         </form>
@@ -219,4 +214,4 @@ const AddEmployee = ({ onClose, showToast }) => {
   );
 };
 
-export default AddEmployee;
+export default AddDocument;
