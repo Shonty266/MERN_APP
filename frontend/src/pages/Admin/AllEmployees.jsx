@@ -18,6 +18,7 @@ const AllEmployees = () => {
   const [dropdownStates, setDropdownStates] = useState({});
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Create a map of refs for each dropdown
   const dropdownRefs = useRef({});
@@ -56,9 +57,10 @@ const AllEmployees = () => {
 
   useEffect(() => {
     const fetchEmployees = async () => {
+      setIsLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:8080/admin/getallemployees', {
+        const response = await fetch('https://mern-app-azwp.vercel.app/admin/getallemployees', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -75,6 +77,8 @@ const AllEmployees = () => {
         }
       } catch (error) {
         showToastMessage('Failed to fetch employees');
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchEmployees();
@@ -135,100 +139,106 @@ const AllEmployees = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
-              {employees.map((employee) => (
-                <div key={employee._id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 relative">
-                  <div className="bg-gradient-to-r from-blue-400 to-blue-500 p-4">
-                    <div className="flex justify-end mb-2 relative">
-                      <div className="relative" ref={el => dropdownRefs.current[employee._id] = el}>
-                        <button
-                          className="text-white hover:bg-blue-600 rounded-full p-1 transition-colors duration-200 active:bg-blue-700 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleDropdown(employee._id);
-                          }}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                          </svg>
-                        </button>
-
-                        {dropdownStates[employee._id] && (
-                          <div 
-                            className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10"
-                            onClick={(e) => e.stopPropagation()} 
+            {isLoading ? (
+              <div className="flex items-center justify-center h-[60vh]">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mt-6">
+                {employees.map((employee) => (
+                  <div key={employee._id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 relative">
+                    <div className="bg-gradient-to-r from-blue-400 to-blue-500 p-4">
+                      <div className="flex justify-end mb-2 relative">
+                        <div className="relative" ref={el => dropdownRefs.current[employee._id] = el}>
+                          <button
+                            className="text-white hover:bg-blue-600 rounded-full p-1 transition-colors duration-200 active:bg-blue-700 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleDropdown(employee._id);
+                            }}
                           >
-                            <div className="py-1">
-                              <button 
-                                onClick={() => handleEditClick(employee)}
-                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                                Edit Employee
-                              </button>
-                              <button 
-                                onClick={() => handleAddDocumentClick(employee)}
-                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                </svg>
-                                Add Document
-                              </button>
-                              <button 
-                                onClick={() => handleDeleteClick(employee)}
-                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                Delete Employee
-                              </button>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                            </svg>
+                          </button>
+
+                          {dropdownStates[employee._id] && (
+                            <div 
+                              className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10"
+                              onClick={(e) => e.stopPropagation()} 
+                            >
+                              <div className="py-1">
+                                <button 
+                                  onClick={() => handleEditClick(employee)}
+                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                  Edit Employee
+                                </button>
+                                <button 
+                                  onClick={() => handleAddDocumentClick(employee)}
+                                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                  </svg>
+                                  Add Document
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteClick(employee)}
+                                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                  Delete Employee
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
+                      </div>
+                      <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <span className="text-blue-600 text-2xl font-bold">{employee.name.charAt(0).toUpperCase()}</span>
+                      </div>
+                      <h3 className="text-white text-xl font-semibold text-center break-words">{employee.name}</h3>
+                    </div>
+                    <div className="p-4 sm:p-6">
+                      <div className="space-y-4">
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          <span className="text-gray-700 text-sm sm:text-base break-words">{employee.email}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          <span className="text-gray-700 text-sm sm:text-base">{employee.contact}</span>
+                        </div>
+                        <hr className="border-gray-200" />
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span className="text-gray-700 text-sm sm:text-base">
+                            {employee.documents ? `${employee.documents.length} Documents` : 'No documents'}
+                          </span>
+                        </div>
+                        <hr className="border-gray-200" />
+                        <div>
+                          <h4 className="text-gray-500 font-medium mb-1 text-sm sm:text-base">Note:</h4>
+                          <p className="text-gray-700 italic break-words text-sm sm:text-base">{employee.notes ? employee.notes : 'No note'}</p>
+                        </div>
                       </div>
                     </div>
-                    <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-2">
-                      <span className="text-blue-600 text-2xl font-bold">{employee.name.charAt(0).toUpperCase()}</span>
-                    </div>
-                    <h3 className="text-white text-xl font-semibold text-center break-words">{employee.name}</h3>
                   </div>
-                  <div className="p-4 sm:p-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        <span className="text-gray-700 text-sm sm:text-base break-words">{employee.email}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
-                        <span className="text-gray-700 text-sm sm:text-base">{employee.contact}</span>
-                      </div>
-                      <hr className="border-gray-200" />
-                      <div className="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V7a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span className="text-gray-700 text-sm sm:text-base">
-                          {employee.documents ? `${employee.documents.length} Documents` : 'No documents'}
-                        </span>
-                      </div>
-                      <hr className="border-gray-200" />
-                      <div>
-                        <h4 className="text-gray-500 font-medium mb-1 text-sm sm:text-base">Note:</h4>
-                        <p className="text-gray-700 italic break-words text-sm sm:text-base">{employee.notes ? employee.notes : 'No note'}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
