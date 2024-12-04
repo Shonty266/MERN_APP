@@ -57,7 +57,7 @@ const Login = () => {
         }
         setIsLoading(true)
         try {
-            const url = `https://mern-app-azwp.vercel.app//auth/login`
+            const url = `https://mern-app-azwp.vercel.app/auth/login`
             const response = await fetch(url, {
                 method: "POST",
                 headers: {
