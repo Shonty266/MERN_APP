@@ -45,7 +45,7 @@ const AddDocument = ({ onClose, showToast, employeeId }) => {
     if (!validateForm()) {
       return;
     }
-  
+
     try {
       setIsLoading(true);
       const token = localStorage.getItem('token');
@@ -54,38 +54,51 @@ const AddDocument = ({ onClose, showToast, employeeId }) => {
         return;
       }
 
+      const MAX_FILE_SIZE = 4.5 * 1024 * 1024; // 4.5MB (Vercel limit is 4.5MB for Hobby plan)
+      const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
+      if (oversizedFiles.length > 0) {
+        displayLocalToast('Files must be smaller than 4.5MB each');
+        return;
+      }
+
       const responses = await Promise.all(files.map(async (file) => {
         const formData = new FormData();
-        formData.append('file', file); // Changed to match backend expectation
-    
+        formData.append('file', file);
+
         const response = await fetch(`${BASE_URL}/admin/adddocument/${employeeId}`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}` // Add token to headers
+            'Authorization': `Bearer ${token}`
           },
           body: formData
         });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          let errorMessage;
-          try {
-            const errorData = JSON.parse(errorText);
-            errorMessage = errorData.message;
-          } catch (e) {
-            errorMessage = 'Failed to add document';
-          }
-          throw new Error(errorMessage);
+        const responseData = await response.text();
+        let parsedData;
+        
+        try {
+          parsedData = JSON.parse(responseData);
+        } catch (e) {
+          console.error('Raw response:', responseData);
+          throw new Error('Invalid server response');
         }
 
-        return response.json();
+        if (!response.ok) {
+          throw new Error(parsedData.message || 'Failed to add document');
+        }
+
+        return parsedData;
       }));
-  
+
       onClose();
       showToast('Documents added successfully', 'success');
     } catch (error) {
       console.error('Error adding documents:', error);
-      displayLocalToast(error.message || 'Failed to add documents. Please try again.');
+      displayLocalToast(
+        error.message === 'Invalid server response' 
+          ? 'Server error. File might be too large or invalid.'
+          : error.message || 'Failed to add documents. Please try again.'
+      );
     } finally {
       setIsLoading(false);
     }
