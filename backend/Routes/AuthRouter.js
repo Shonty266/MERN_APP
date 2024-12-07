@@ -4,9 +4,9 @@ const { signup, login } = require('../Controllers/AuthController')
 
 
 
-router.post('/login', loginValidation, login);
+router.post('/admin/login', loginValidation, login);
 
-router.post('/signup', signupValidation, signup);
+router.post('/admin/signup', signupValidation, signup);
 
 
 module.exports = router;

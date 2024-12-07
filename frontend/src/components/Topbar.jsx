@@ -115,7 +115,7 @@ const Topbar = () => {
                 
                 <div className="flex flex-col items-start">
                   <span className="text-sm font-medium text-gray-500">{user.name}</span>
-                  <span className="text-base font-semibold text-gray-900">admin</span>
+                  <span className="text-sm font-semibold text-gray-900">admin</span>
                 </div>
               </div>
             </div>

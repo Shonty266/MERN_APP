@@ -8,7 +8,13 @@ function RefreshHandler({ setIsAuthenticated }) {
     useEffect(() => {
         if (localStorage.getItem('token')) {
             setIsAuthenticated(true);
-            if (location.pathname === '/' ||
+
+            if (location.pathname === '/admin/allemployee') {
+                return;
+            }
+
+            
+            if (location.pathname === '/admin/login' ||
                 location.pathname === '/admin/login' ||
                 location.pathname === '/admin/signup'||
                 location.pathname === '/login' ||

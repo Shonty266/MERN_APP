@@ -20,22 +20,14 @@ const EmployeeSchema = new Schema({
         default: ''
     },
     documents: [{
-        id: {
-            type: Schema.Types.ObjectId,
-            default: () => new mongoose.Types.ObjectId()
+        title: {
+            type: String,
+            required: true,
+            unique: true
         },
-        employeeId: {
-            type: Schema.Types.ObjectId,
-            ref: 'employees',
+        file: {
+            type: String,
             required: true
-        },
-        title: String,
-        fileName: String,
-        originalName: String,
-        mimeType: String,
-        uploadDate: {
-            type: Date,
-            default: Date.now
         }
     }]
 });

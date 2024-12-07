@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Toast from '../../pages/toastNotification/Toast';
+import BASE_URL from '../../config';
 
 const AddEmployee = ({ onClose, showToast }) => {
   const [formData, setFormData] = useState({
@@ -82,7 +83,7 @@ const AddEmployee = ({ onClose, showToast }) => {
         return;
       }
   
-      const response = await fetch('https://mern-app-azwp.vercel.app/admin/addemployee', {
+      const response = await fetch(`${BASE_URL}/admin/addemployee`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

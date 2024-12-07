@@ -1,4 +1,4 @@
-const UserModel = require('../Models/User')
+const AdminModel = require('../Models/Admin')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
@@ -7,17 +7,28 @@ const jwt = require('jsonwebtoken')
 const signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
-        const user = await UserModel.findOne({ email });
+        
+        // Check if user with email already exists
+        const user = await AdminModel.findOne({ email });
         if (user) {
             return res.status(409)
                 .json({ message: 'User with this email is already exist.', success: false });
         }
-        const userModel = new UserModel({ name, email, password });
+
+        // Get total number of existing users
+        const totalUsers = await AdminModel.countDocuments();
+        if (totalUsers >= 3) {
+            return res.status(403)
+                .json({ message: 'Maximum number of users (3) has been reached.', success: false });
+        }
+
+        const userModel = new AdminModel({ name, email, password });
         userModel.password = await bcrypt.hash(password, 10);
         await userModel.save();
+        
         res.status(201)
             .json({
-                message: "Signup successfully",
+                message: "Signup successfully", 
                 success: true
             })
     } catch (err) {
@@ -40,7 +51,7 @@ const login = async (req, res) => {
             });
         }
 
-        const user = await UserModel.findOne({ email });
+        const user = await AdminModel.findOne({ email });
 
         const errorMsg = "Auth failed: email or password is wrong";
         if (!user) {

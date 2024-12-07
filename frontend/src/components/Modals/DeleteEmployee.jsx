@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Toast from '../../pages/toastNotification/Toast';
+import BASE_URL from '../../config';
 
-const DeleteEmployee = ({ onClose, showToast, employee }) => {
+const DeleteEmployee = ({ onClose, showToast, employee, employeeId }) => {
   const [showLocalToast, setShowLocalToast] = useState(false);
   const [localToastMessage, setLocalToastMessage] = useState('');
 
@@ -21,11 +22,13 @@ const DeleteEmployee = ({ onClose, showToast, employee }) => {
         return;
       }
 
-      const response = await fetch(`https://mern-app-azwp.vercel.app/admin/deleteemployee/${employee._id}`, {
+      const response = await fetch(`${BASE_URL}/admin/deleteemployee/${employeeId}`, {
         method: 'DELETE',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
-        }
+        },
+        body: JSON.stringify({ id: employeeId })
       });
 
       const data = await response.json();
