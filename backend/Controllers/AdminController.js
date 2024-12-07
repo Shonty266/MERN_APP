@@ -74,6 +74,14 @@ const editemployee = async (req, res) => {
 
 const adddocument = async (req, res) => {
   try {
+      // Check if file exists in request
+      if (!req.file) {
+          return res.status(400).json({
+              message: "No file uploaded",
+              success: false
+          });
+      }
+
       const { id } = req.params;
       const file = req.file.path;
       let title = req.file.originalname;
@@ -82,7 +90,7 @@ const adddocument = async (req, res) => {
 
       if (!employee) {
           return res.status(404).json({
-              message: "Employee not found",
+              message: "Employee not found", 
               success: false
           });
       }
@@ -100,6 +108,14 @@ const adddocument = async (req, res) => {
           count++;
       }
 
+      // Validate file path exists
+      if (!file) {
+          return res.status(400).json({
+              message: "File path is missing",
+              success: false
+          });
+      }
+
       employee.documents.push({
           title,
           file
@@ -107,7 +123,7 @@ const adddocument = async (req, res) => {
 
       await employee.save();
 
-      res.status(200).json({
+      res.status(201).json({
           message: "Document added successfully",
           success: true,
           document: {
@@ -116,8 +132,9 @@ const adddocument = async (req, res) => {
           }
       });
   } catch (err) {
+      console.error("Error in adddocument:", err);
       res.status(500).json({
-          message: "Internal server error",
+          message: err.message || "Internal server error",
           success: false
       });
   }
