@@ -74,52 +74,78 @@ const editemployee = async (req, res) => {
 
 const adddocument = async (req, res) => {
   try {
-      const { id } = req.params;
-      const file = req.file.path;
-      let title = req.file.originalname;
+    // Debug logging
+    console.log('Request received:', {
+      fileInfo: req.file ? {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size
+      } : 'No file',
+      employeeId: req.params.id
+    });
 
-      const employee = await EmployeeModel.findById(id);
-
-      if (!employee) {
-          return res.status(404).json({
-              message: "Employee not found",
-              success: false
-          });
-      }
-
-      // Generate a unique title if a document with the same title already exists
-      let titleExists = employee.documents.some(doc => doc.title === title);
-      let count = 1;
-      
-      while (titleExists) {
-          // Append (1), (2), etc., to the title
-          const baseTitle = req.file.originalname.split('.').slice(0, -1).join('.');
-          const extension = req.file.originalname.split('.').pop();
-          title = `${baseTitle} (${count}).${extension}`;
-          titleExists = employee.documents.some(doc => doc.title === title);
-          count++;
-      }
-
-      employee.documents.push({
-          title,
-          file
+    if (!req.file) {
+      return res.status(400).json({
+        message: "No file uploaded",
+        success: false
       });
+    }
 
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({
+        message: "Employee ID is required",
+        success: false
+      });
+    }
+
+    // Check if employee exists
+    const employee = await EmployeeModel.findById(id);
+    if (!employee) {
+      return res.status(404).json({
+        message: "Employee not found",
+        success: false
+      });
+    }
+
+    // Convert file to base64 and create document object
+    const fileData = req.file.buffer.toString('base64');
+    const document = {
+      title: req.file.originalname,
+      file: `data:${req.file.mimetype};base64,${fileData}`
+    };
+
+    // Add document to employee's documents array
+    try {
+      employee.documents = employee.documents || [];
+      employee.documents.push(document);
       await employee.save();
+    } catch (saveError) {
+      console.error('Error saving document:', saveError);
+      return res.status(500).json({
+        message: "Failed to save document to database",
+        error: saveError.message,
+        success: false
+      });
+    }
 
-      res.status(200).json({
-          message: "Document added successfully",
-          success: true,
-          document: {
-              title,
-              file
-          }
-      });
+    return res.status(201).json({
+      message: "Document added successfully",
+      success: true,
+      document: {
+        title: req.file.originalname,
+        type: req.file.mimetype
+      }
+    });
+
   } catch (err) {
-      res.status(500).json({
-          message: "Internal server error",
-          success: false
-      });
+    console.error("Error in adddocument:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+      success: false
+    });
   }
 };
 
