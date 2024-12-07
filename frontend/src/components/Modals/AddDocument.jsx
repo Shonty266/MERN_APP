@@ -55,13 +55,15 @@ const AddDocument = ({ onClose, showToast, employeeId }) => {
       }
 
       const responses = await Promise.all(files.map(async (file) => {
-        const formDataToSend = new FormData();
-        formDataToSend.append('title', file.name);
-        formDataToSend.append('file', file);
+        const formData = new FormData();
+        formData.append('file', file); // Changed to match backend expectation
     
         const response = await fetch(`${BASE_URL}/admin/adddocument/${employeeId}`, {
           method: 'POST',
-          body: formDataToSend
+          headers: {
+            'Authorization': `Bearer ${token}` // Add token to headers
+          },
+          body: formData
         });
 
         if (!response.ok) {
@@ -121,7 +123,7 @@ const AddDocument = ({ onClose, showToast, employeeId }) => {
                 <input
                   type="file"
                   id="files"
-                  name="files"
+                  name="file"
                   onChange={handleChange}
                   accept=".pdf,.png,.jpeg,.jpg"
                   multiple
