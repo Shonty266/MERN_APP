@@ -23,7 +23,6 @@ const EmployeeSchema = new Schema({
         title: {
             type: String,
             required: true,
-            unique: true
         },
         file: {
             type: String,

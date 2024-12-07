@@ -75,14 +75,6 @@ const editemployee = async (req, res) => {
 
 const adddocument = async (req, res) => {
   try {
-    // Debug logging
-    console.log('Request received:', {
-      files: req.file,
-      body: req.body,
-      params: req.params
-    });
-
-    // Check if multer middleware is working
     if (!req.file) {
       return res.status(400).json({
         message: "No file uploaded",
@@ -92,7 +84,6 @@ const adddocument = async (req, res) => {
 
     const { id } = req.params;
     
-    // Validate employee ID
     if (!id) {
       return res.status(400).json({
         message: "Employee ID is required",
@@ -102,50 +93,35 @@ const adddocument = async (req, res) => {
 
     const employee = await EmployeeModel.findById(id);
     if (!employee) {
-      // Delete uploaded file if employee not found
-      if (req.file && req.file.path) {
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(404).json({
         message: "Employee not found",
         success: false
       });
     }
 
-    const file = req.file.path;
-    let title = req.file.originalname;
+    // Store file data in base64 format
+    const fileData = req.file.buffer.toString('base64');
+    const fileType = req.file.mimetype;
+    const fileName = req.file.originalname;
 
-    try {
-      // Add document to employee
-      employee.documents.push({
-        title,
-        file
-      });
+    // Add document to employee
+    employee.documents.push({
+      title: fileName,
+      file: `data:${fileType};base64,${fileData}` // Store as data URL
+    });
 
-      await employee.save();
+    await employee.save();
 
-      return res.status(201).json({
-        message: "Document added successfully",
-        success: true,
-        document: {
-          title,
-          file
-        }
-      });
-    } catch (saveError) {
-      // If saving to DB fails, cleanup uploaded file
-      if (req.file && req.file.path) {
-        fs.unlinkSync(req.file.path);
+    return res.status(201).json({
+      message: "Document added successfully",
+      success: true,
+      document: {
+        title: fileName,
+        type: fileType
       }
-      throw saveError;
-    }
+    });
 
   } catch (err) {
-    // Cleanup on error
-    if (req.file && req.file.path) {
-      fs.unlinkSync(req.file.path);
-    }
-    
     console.error("Error in adddocument:", err);
     return res.status(500).json({
       message: "Failed to add document: " + err.message,
