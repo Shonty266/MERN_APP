@@ -132,6 +132,7 @@ const AddDocument = ({ onClose, showToast, employeeId }) => {
               <label htmlFor="files" className="block text-sm font-medium text-gray-700 mb-1">
                 Upload Files (PDF, PNG, JPEG, JPG)
               </label>
+              <p className="text-sm text-gray-500 mb-2">Maximum file size: 4MB per file</p>
               <div className="relative">
                 <input
                   type="file"
