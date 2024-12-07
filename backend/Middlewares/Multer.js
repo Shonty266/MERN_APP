@@ -1,41 +1,28 @@
-const multer = require("multer");
-const path = require("path");
+const multer = require('multer');
+const path = require('path');
 
-// Configure how the files are stored
+// Configure multer for file upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Where to store the file
-    cb(null, "uploads/");
+    cb(null, 'uploads/') // Make sure this directory exists
   },
   filename: function (req, file, cb) {
-    // Generate unique filename with original extension
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
+    cb(null, Date.now() + '-' + file.originalname)
+  }
 });
 
-const fileFilter = (req, file, cb) => {
-  // Accept only specific file types
-  const allowedMimes = [
-    "image/jpeg",
-    "image/jpg", 
-    "image/png",
-    "application/pdf",
-  ];
-
-  if (allowedMimes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Invalid file type. Only JPEG, PNG, PDF and DOC files are allowed'), false);
-  }
-};
-
-const upload = multer({
+const upload = multer({ 
   storage: storage,
   limits: {
-    fileSize: 1024 * 1024 * 10, // Increased to 10MB
+    fileSize: 4 * 1024 * 1024 // 4MB limit
   },
-  fileFilter: fileFilter,
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
+    if (!allowedTypes.includes(file.mimetype)) {
+      cb(new Error('Invalid file type'), false);
+    }
+    cb(null, true);
+  }
 });
 
 module.exports = upload;

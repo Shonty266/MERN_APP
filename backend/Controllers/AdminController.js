@@ -1,6 +1,7 @@
 const path = require("path");
 const EmployeeModel = require('../Models/Employee')
 const DocumentModel = require('../Models/Documents')
+const fs = require('fs');
 
 const addemployee = async (req, res) => {
     try {
@@ -74,69 +75,82 @@ const editemployee = async (req, res) => {
 
 const adddocument = async (req, res) => {
   try {
-      // Check if file exists in request
-      if (!req.file) {
-          return res.status(400).json({
-              message: "No file uploaded",
-              success: false
-          });
+    // Debug logging
+    console.log('Request received:', {
+      files: req.file,
+      body: req.body,
+      params: req.params
+    });
+
+    // Check if multer middleware is working
+    if (!req.file) {
+      return res.status(400).json({
+        message: "No file uploaded",
+        success: false
+      });
+    }
+
+    const { id } = req.params;
+    
+    // Validate employee ID
+    if (!id) {
+      return res.status(400).json({
+        message: "Employee ID is required",
+        success: false
+      });
+    }
+
+    const employee = await EmployeeModel.findById(id);
+    if (!employee) {
+      // Delete uploaded file if employee not found
+      if (req.file && req.file.path) {
+        fs.unlinkSync(req.file.path);
       }
+      return res.status(404).json({
+        message: "Employee not found",
+        success: false
+      });
+    }
 
-      const { id } = req.params;
-      const file = req.file.path;
-      let title = req.file.originalname;
+    const file = req.file.path;
+    let title = req.file.originalname;
 
-      const employee = await EmployeeModel.findById(id);
-
-      if (!employee) {
-          return res.status(404).json({
-              message: "Employee not found", 
-              success: false
-          });
-      }
-
-      // Generate a unique title if a document with the same title already exists
-      let titleExists = employee.documents.some(doc => doc.title === title);
-      let count = 1;
-      
-      while (titleExists) {
-          // Append (1), (2), etc., to the title
-          const baseTitle = req.file.originalname.split('.').slice(0, -1).join('.');
-          const extension = req.file.originalname.split('.').pop();
-          title = `${baseTitle} (${count}).${extension}`;
-          titleExists = employee.documents.some(doc => doc.title === title);
-          count++;
-      }
-
-      // Validate file path exists
-      if (!file) {
-          return res.status(400).json({
-              message: "File path is missing",
-              success: false
-          });
-      }
-
+    try {
+      // Add document to employee
       employee.documents.push({
-          title,
-          file
+        title,
+        file
       });
 
       await employee.save();
 
-      res.status(201).json({
-          message: "Document added successfully",
-          success: true,
-          document: {
-              title,
-              file
-          }
+      return res.status(201).json({
+        message: "Document added successfully",
+        success: true,
+        document: {
+          title,
+          file
+        }
       });
+    } catch (saveError) {
+      // If saving to DB fails, cleanup uploaded file
+      if (req.file && req.file.path) {
+        fs.unlinkSync(req.file.path);
+      }
+      throw saveError;
+    }
+
   } catch (err) {
-      console.error("Error in adddocument:", err);
-      res.status(500).json({
-          message: err.message || "Internal server error",
-          success: false
-      });
+    // Cleanup on error
+    if (req.file && req.file.path) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    console.error("Error in adddocument:", err);
+    return res.status(500).json({
+      message: "Failed to add document: " + err.message,
+      success: false
+    });
   }
 };
 
