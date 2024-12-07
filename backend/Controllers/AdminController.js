@@ -163,20 +163,67 @@ const showalldocuments = async (req, res) => {
             });
         }
 
+        // Return only necessary document information, not the full file data
+        const documents = employee.documents.map(doc => ({
+            _id: doc._id,
+            title: doc.title,
+            type: doc.type || doc.file.split(';')[0].split(':')[1], // Extract type from data URL if needed
+            uploadDate: doc.uploadDate,
+            // Don't send the full file data in the list view
+        }));
+
         res.status(200).json({ 
-            documents: employee.documents,
+            documents,
             success: true 
         });
     } catch (err) {
-        res.status(500).json({ message: "Internal server error", success: false });
+        console.error("Error in showalldocuments:", err);
+        res.status(500).json({ 
+            message: "Internal server error", 
+            success: false 
+        });
     }
 }
 
+// Add a new endpoint to get a single document
+const getdocument = async (req, res) => {
+    try {
+        const { employeeId, documentId } = req.params;
+        const employee = await EmployeeModel.findById(employeeId);
+        
+        if (!employee) {
+            return res.status(404).json({
+                message: "Employee not found",
+                success: false
+            });
+        }
 
+        const document = employee.documents.id(documentId);
+        if (!document) {
+            return res.status(404).json({
+                message: "Document not found",
+                success: false
+            });
+        }
 
-
-
-
+        res.status(200).json({ 
+            document: {
+                _id: document._id,
+                title: document.title,
+                type: document.type,
+                file: document.file,
+                uploadDate: document.uploadDate
+            },
+            success: true 
+        });
+    } catch (err) {
+        console.error("Error in getdocument:", err);
+        res.status(500).json({ 
+            message: "Internal server error", 
+            success: false 
+        });
+    }
+}
 
 module.exports = {
     addemployee,
@@ -184,5 +231,6 @@ module.exports = {
     deleteemployee,
     editemployee,
     adddocument,
-    showalldocuments
+    showalldocuments,
+    getdocument
 }

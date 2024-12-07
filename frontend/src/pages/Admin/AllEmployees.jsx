@@ -25,6 +25,7 @@ const AllEmployees = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [documents, setDocuments] = useState([]);
 
   // Create a map of refs for each dropdown
   const dropdownRefs = useRef({});
@@ -136,6 +137,44 @@ const AllEmployees = () => {
   const handleViewDocument = (filePath) => {
     const cleanPath = filePath.replace('uploads/', '');
     window.open(`${BASE_URL}/${cleanPath}`, '_blank');
+  };
+
+  const fetchDocuments = async () => {
+    try {
+        const response = await fetch(`${BASE_URL}/admin/showalldocuments/${employeeId}`);
+        const data = await response.json();
+        if (data.success) {
+            setDocuments(data.documents);
+        }
+    } catch (error) {
+        console.error('Error fetching documents:', error);
+    }
+  };
+
+  const viewDocument = async (documentId) => {
+    try {
+        const response = await fetch(`${BASE_URL}/admin/document/${employeeId}/${documentId}`);
+        const data = await response.json();
+        if (data.success) {
+            // Handle the document based on its type
+            const { file, type, title } = data.document;
+            
+            if (type.startsWith('image/')) {
+                // For images, you can display them directly
+                const img = new Image();
+                img.src = file;
+                // Display the image in your UI
+            } else if (type === 'application/pdf') {
+                // For PDFs, you might want to open in a new tab or use a PDF viewer
+                const pdfWindow = window.open();
+                pdfWindow.document.write(
+                    `<iframe width='100%' height='100%' src='${file}'></iframe>`
+                );
+            }
+        }
+    } catch (error) {
+        console.error('Error viewing document:', error);
+    }
   };
 
   return (
