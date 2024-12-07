@@ -12,7 +12,7 @@ router.delete('/deleteemployee/:id' , deleteemployee)
 
 router.put('/editemployee/:id' , editemployee)
 
-router.post('/adddocument/:id' , upload.single('file') , adddocument)
+router.post('/adddocument/:id'  , adddocument)
 
 router.get('/showalldocuments/:id' , showalldocuments)
 
