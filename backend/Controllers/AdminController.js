@@ -1,7 +1,6 @@
 const path = require("path");
 const EmployeeModel = require('../Models/Employee')
 const DocumentModel = require('../Models/Documents')
-const fs = require('fs');
 
 const addemployee = async (req, res) => {
     try {
@@ -75,58 +74,52 @@ const editemployee = async (req, res) => {
 
 const adddocument = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({
-        message: "No file uploaded",
-        success: false
-      });
-    }
+      const { id } = req.params;
+      const file = req.file.path;
+      let title = req.file.originalname;
 
-    const { id } = req.params;
-    
-    if (!id) {
-      return res.status(400).json({
-        message: "Employee ID is required",
-        success: false
-      });
-    }
+      const employee = await EmployeeModel.findById(id);
 
-    const employee = await EmployeeModel.findById(id);
-    if (!employee) {
-      return res.status(404).json({
-        message: "Employee not found",
-        success: false
-      });
-    }
-
-    // Store file data in base64 format
-    const fileData = req.file.buffer.toString('base64');
-    const fileType = req.file.mimetype;
-    const fileName = req.file.originalname;
-
-    // Add document to employee
-    employee.documents.push({
-      title: fileName,
-      file: `data:${fileType};base64,${fileData}` // Store as data URL
-    });
-
-    await employee.save();
-
-    return res.status(201).json({
-      message: "Document added successfully",
-      success: true,
-      document: {
-        title: fileName,
-        type: fileType
+      if (!employee) {
+          return res.status(404).json({
+              message: "Employee not found",
+              success: false
+          });
       }
-    });
 
+      // Generate a unique title if a document with the same title already exists
+      let titleExists = employee.documents.some(doc => doc.title === title);
+      let count = 1;
+      
+      while (titleExists) {
+          // Append (1), (2), etc., to the title
+          const baseTitle = req.file.originalname.split('.').slice(0, -1).join('.');
+          const extension = req.file.originalname.split('.').pop();
+          title = `${baseTitle} (${count}).${extension}`;
+          titleExists = employee.documents.some(doc => doc.title === title);
+          count++;
+      }
+
+      employee.documents.push({
+          title,
+          file
+      });
+
+      await employee.save();
+
+      res.status(200).json({
+          message: "Document added successfully",
+          success: true,
+          document: {
+              title,
+              file
+          }
+      });
   } catch (err) {
-    console.error("Error in adddocument:", err);
-    return res.status(500).json({
-      message: "Failed to add document: " + err.message,
-      success: false
-    });
+      res.status(500).json({
+          message: "Internal server error",
+          success: false
+      });
   }
 };
 
